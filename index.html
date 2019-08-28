@@ -1,0 +1,120 @@
+<!--
+Document   : index
+Created on : 27 Aug, 2019, 10:27:53 AM
+Author     : Pratik V
+-->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>FileType Indentification</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">File Type Identification</h1>
+        <p class="lead">Rendering the file type information using filenames.</p>
+    </div>
+</div>
+<div align="center">
+    <div class="card" style="width: 25rem;">
+        <div class="card-body">
+            <h5 class="card-title">Enter your filenames</h5>
+            <p class="card-text">
+                <form action="" method="POST" name="QueryForm" ><!--onsubmit="showFileName()">-->
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Filenames</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="data.csv, run.py, etc." aria-describedby="basic-addon1" id="MyFile">
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="submit" onclick="return getDetails()">Get File Details</button>
+                </form>
+            </p>
+        </div>
+    </div>
+</div>
+
+<p align="center">
+    <script>
+        function getDetails()
+        {
+            console.log('<--------Entered getDetails()-------->');
+            var filenames = document.getElementById("MyFile").value;
+            filenames = filenames.split(',');
+            var uniqueExtensions = new Array();
+            for(var i=0;i<filenames.length;i++) {
+                filenames[i] = filenames[i].substring(filenames[i].indexOf('.'));
+                if(!uniqueExtensions.includes(filenames[i]))
+                    uniqueExtensions.push(filenames[i]);
+            }
+            console.log('<-------\n'+uniqueExtensions.toString()+'\n--------->');
+            var jsonFile = {json:JSON.stringify(uniqueExtensions)};
+
+            RestGet(jsonFile);
+            return true;
+        }
+        var RestGet = function(jsonFile) {
+            console.log('<-------------Inside RestGet()---------------->');
+            $.ajax({
+                type: 'POST',
+                url: "/search/multi",
+                data: jsonFile,
+                dataType: "json",
+                async: true,
+                success: function (result) {
+                    //
+                    var lengthOfJSON = result.size;
+                    console.log('<----------Inside successFunc()----------->');
+                    var jsonObjects = result.extensionResponseList;
+                    for(var i=0;i<lengthOfJSON;i++)
+                    {
+                        var extensionString = jsonObjects[i].extension;
+                        var category = jsonObjects[i].category;
+                        var shortDescription = jsonObjects[i].shortDescription;
+                        var developer = jsonObjects[i].developer;
+                        var information = jsonObjects[i].information;
+                        var usefulLink = jsonObjects[i].usefulLink;
+                        var programList = jsonObjects[i].programList;
+                        var doShow = "";
+                        console.log('<-------- '+extensionString+' ----------->');
+                        if(i==0)
+                        {
+                            document.write('<div class="accordion" id="accordionExample">');
+                            doShow = " show";
+                        }
+                        document.write('<div class="card">' +
+                            '    <div class="card-header" id="heading'+i+'">' +
+                            '      <h2 class="mb-0">' +
+                            '        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse'+i+'" aria-expanded="true" aria-controls="collapse'+i+'">' +
+                            extensionString+
+                            '        </button>' +
+                            '      </h2>' +
+                            '    </div>');
+
+                        document.write('<div id="collapse'+i+'" class="collapse'+doShow+'" aria-labelledby="heading'+i+'" data-parent="#accordionExample">' +
+                            '      <div class="card-body">' +
+                            category+
+                            '      </div>' +
+                            '    </div>' +
+                            '  </div>');
+                        if(i==lengthOfJSON-1)
+                            document.write('</div>');
+                    }
+                }
+                // error: function (jqXHR, textStatus, errorThrown) {
+                //     alert(jqXHR.status + ' ' + jqXHR.responseText);
+                // }
+            });
+        }
+    </script>
+</p>
+</body>
+</html>
