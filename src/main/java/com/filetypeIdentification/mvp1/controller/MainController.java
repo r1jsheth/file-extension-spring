@@ -6,6 +6,7 @@ package com.filetypeIdentification.mvp1.controller;
  */
 
 import com.filetypeIdentification.mvp1.document.ExtensionRequestDTO;
+import com.filetypeIdentification.mvp1.document.ExtensionResponse;
 import com.filetypeIdentification.mvp1.document.ExtensionResponseDTO;
 import com.filetypeIdentification.mvp1.service.InformationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,15 @@ public class MainController {
 	public ExtensionResponseDTO callServiceForInformation(@RequestBody ExtensionRequestDTO extensionRequestDTO){
 		return informationService.getMultipleInformation(extensionRequestDTO);
 	}
+
+
+	@GetMapping("/search/pagewise")
+	public ExtensionResponseDTO getPageWiseInformation(@RequestParam int pageNo, @RequestParam int pageSize,
+	                                                   @RequestBody ExtensionRequestDTO extensionRequestDTO){
+		return informationService.getMultipleInformationPageWise(extensionRequestDTO, pageNo, pageSize);
+	}
+
+
 	@GetMapping("/search/byCategory")
 	public ExtensionResponseDTO callServiceForINformation(@RequestParam String category)
 	{
