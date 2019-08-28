@@ -12,6 +12,8 @@ import com.filetypeIdentification.mvp1.service.InformationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -37,6 +39,12 @@ public class MainController {
 	public ExtensionResponseDTO getPageWiseInformation(@RequestParam int pageNo, @RequestParam int pageSize,
 	                                                   @RequestBody ExtensionRequestDTO extensionRequestDTO){
 		return informationService.getMultipleInformationPageWise(extensionRequestDTO, pageNo, pageSize);
+	}
+
+
+	@GetMapping("/category/all")
+	public List<String> listAllCategory(){
+		return informationService.getAllCategory();
 	}
 
 

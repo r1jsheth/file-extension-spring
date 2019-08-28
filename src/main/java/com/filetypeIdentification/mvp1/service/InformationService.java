@@ -8,9 +8,9 @@ package com.filetypeIdentification.mvp1.service;
 
 import com.filetypeIdentification.mvp1.document.Extension;
 import com.filetypeIdentification.mvp1.document.ExtensionRequestDTO;
-import com.filetypeIdentification.mvp1.document.ExtensionResponse;
 import com.filetypeIdentification.mvp1.document.ExtensionResponseDTO;
-import com.filetypeIdentification.mvp1.repository.ExtensionRepository;
+import com.mongodb.client.DistinctIterable;
+import com.mongodb.client.MongoCursor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 
 
 @Service
@@ -80,6 +81,21 @@ public class InformationService {
 		}
 	}
 
+
+	public List<String> getAllCategory(){
+
+		DistinctIterable distinctIterable = mongoTemplate.getCollection("extensionProd").distinct("extensionData.category", String.class);
+		MongoCursor cursor = distinctIterable.iterator();
+		List<String> categoryList = new ArrayList<>();
+
+		while(cursor.hasNext()){
+			categoryList.add((String) cursor.next());
+		}
+
+		Collections.sort(categoryList);
+
+		return categoryList;
+	}
 
 
 	public ExtensionResponseDTO getByCategory(String category)
