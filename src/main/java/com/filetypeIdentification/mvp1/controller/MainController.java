@@ -33,7 +33,7 @@ public class MainController {
 	@GetMapping("/search/byCategory")
 	public ExtensionResponseDTO callServiceForINformation(@RequestParam String category)
 	{
-		return informationService.getByCateogry(category);
+		return informationService.getByCategory(category);
 	}
 
 

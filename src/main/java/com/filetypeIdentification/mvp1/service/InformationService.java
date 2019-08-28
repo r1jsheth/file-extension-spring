@@ -42,7 +42,7 @@ public class InformationService {
 		ExtensionResponseDTO extensionResponseDTO = new ExtensionResponseDTO(extensionList);
 		return extensionResponseDTO;
 	}
-	public ExtensionResponseDTO getByCateogry(String category)
+	public ExtensionResponseDTO getByCategory(String category)
 	{
 		Query query = new Query();
 		query.addCriteria(Criteria.where("extensionData.category").is(category));
