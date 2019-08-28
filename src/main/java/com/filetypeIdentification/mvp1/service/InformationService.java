@@ -12,6 +12,7 @@ import com.filetypeIdentification.mvp1.document.ExtensionResponseDTO;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -29,6 +30,8 @@ public class InformationService {
 	@Autowired
 	MongoTemplate mongoTemplate;
 
+
+	@Cacheable("extension")
 	public ExtensionResponseDTO getInformation(String queryExtension){
 		Query query = new Query();
 		query.addCriteria(Criteria.where("extensionString").is(queryExtension.toLowerCase()));
@@ -37,6 +40,7 @@ public class InformationService {
 		return extensionResponseDTO;
 	}
 
+	@Cacheable("extension")
 	public ExtensionResponseDTO getMultipleInformation(ExtensionRequestDTO extensionRequestDTO){
 		List<String> queryExtensionList = extensionRequestDTO.getExtensionQueryList();
 		Query query = new Query();
@@ -47,6 +51,7 @@ public class InformationService {
 		return extensionResponseDTO;
 	}
 
+	@Cacheable("extension")
 	public ExtensionResponseDTO getMultipleInformationPageWise(ExtensionRequestDTO extensionRequestDTO,
 																int pageNo, int pageSize){
 		List<String> extensionQueryList = extensionRequestDTO.getExtensionQueryList();
