@@ -42,5 +42,13 @@ public class InformationService {
 		ExtensionResponseDTO extensionResponseDTO = new ExtensionResponseDTO(extensionList);
 		return extensionResponseDTO;
 	}
+	public ExtensionResponseDTO getByCateogry(String category)
+	{
+		Query query = new Query();
+		query.addCriteria(Criteria.where("extensionData.category").is(category));
+		List<Extension> extensionList = mongoTemplate.find(query, Extension.class);
+		ExtensionResponseDTO extensionResponseDTO = new ExtensionResponseDTO(extensionList);
+		return extensionResponseDTO;
+	}
 
 }
