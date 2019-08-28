@@ -24,7 +24,7 @@ public class MainController {
 
 	// Controller for only one extension
 	@GetMapping("/search/single")
-	public ExtensionResponseDTO callServiceForInformation(@RequestBody String queryExtension){
+	public ExtensionResponseDTO callServiceForInformation(@RequestParam String queryExtension){
 		return informationService.getInformation(queryExtension);
 	}
 
