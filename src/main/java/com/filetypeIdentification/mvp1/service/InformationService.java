@@ -128,8 +128,7 @@ public class InformationService {
 	}
 
 
-	public ExtensionResponseDTO getByCategory(String category)
-	{
+	public ExtensionResponseDTO getByCategory(String category){
 		Query query = new Query();
 		query.addCriteria(Criteria.where("extensionData.category").is(category));
 		List<Extension> extensionList = mongoTemplate.find(query, Extension.class);
