@@ -28,7 +28,7 @@ Author     : Pratik V
         <div class="card-body">
             <h5 class="card-title">Enter your filenames</h5>
             <p class="card-text">
-                <form action="" method="POST" name="QueryForm" ><!--onsubmit="showFileName()">-->
+<!--                <form method="POST" name="QueryForm" >&lt;!&ndash;onsubmit="showFileName()">&ndash;&gt;-->
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">Filenames</span>
@@ -36,14 +36,43 @@ Author     : Pratik V
                         <input type="text" class="form-control" placeholder="data.csv, run.py, etc." aria-describedby="basic-addon1" id="MyFile">
                     </div>
                     <button type="submit" class="btn btn-primary" name="submit" onclick="return getDetails()">Get File Details</button>
-                </form>
+                    <button type="submit" class="btn btn-primary" name="submit" onclick="return temp()">Check</button>
+<!--                    <button type="submit" class="btn btn-primary" name="submit" onclick="return multi()">Multi</button>-->
+<!--                </form>-->
             </p>
         </div>
     </div>
 </div>
 
-<p align="center">
+<div id="showFileTypeDetails" aria-rowindex="50%" style="margin:0.5em;"></div>
     <script>
+        var pageNumber = 1;
+        var pageSize = 10;
+        function temp(){
+            var settings = {
+                  "async": true,
+                  "crossDomain": true,
+                  "url": "http://192.168.0.105:8080/search/single?queryExtension=.cpp",
+                  "method": "POST",
+                  "headers": {
+                    "Accept": "*/*",
+                    "Cache-Control": "no-cache",
+                    // "Host": "192.168.0.105:8080",
+                    // "Accept-Encoding": "gzip, deflate",
+                    // "Content-Length": "",
+                    // "Connection": "keep-alive",
+                    "cache-control": "no-cache"
+                  }
+                };
+
+                $.ajax(settings).done(function (response) {
+                    console.log("sofsvdfividfjvif");
+                    console.log(response.toString());
+                    console.log(response.size);
+                    console.log(response);
+                });
+        }
+
         function getDetails()
         {
             console.log('<--------Entered getDetails()-------->');
@@ -56,65 +85,171 @@ Author     : Pratik V
                     uniqueExtensions.push(filenames[i]);
             }
             console.log('<-------\n'+uniqueExtensions.toString()+'\n--------->');
-            var jsonFile = {json:JSON.stringify(uniqueExtensions)};
+            const number = uniqueExtensions.length;
 
-            RestGet(jsonFile);
+            if(number > 1) {
+                var jsonFile = JSON.stringify({size: number, extensionQueryList: uniqueExtensions});
+                console.log(jsonFile);
+                RestPostMulti(jsonFile);
+            }
+            else
+                RestPostSingle(uniqueExtensions[0]);
             return true;
         }
-        var RestGet = function(jsonFile) {
-            console.log('<-------------Inside RestGet()---------------->');
+
+        var RestPostSingle = function(extensionString) {
             $.ajax({
-                type: 'POST',
-                url: "/search/multi",
-                data: jsonFile,
-                dataType: "json",
-                async: true,
-                success: function (result) {
-                    //
-                    var lengthOfJSON = result.size;
-                    console.log('<----------Inside successFunc()----------->');
-                    var jsonObjects = result.extensionResponseList;
-                    for(var i=0;i<lengthOfJSON;i++)
-                    {
-                        var extensionString = jsonObjects[i].extension;
-                        var category = jsonObjects[i].category;
-                        var shortDescription = jsonObjects[i].shortDescription;
-                        var developer = jsonObjects[i].developer;
-                        var information = jsonObjects[i].information;
-                        var usefulLink = jsonObjects[i].usefulLink;
-                        var programList = jsonObjects[i].programList;
+              "async": true,
+              "crossDomain": true,
+              "url": "http://192.168.0.105:8080/search/single?queryExtension="+extensionString,
+              "method": "POST",
+              "headers": {
+                "Accept": "*/*",
+                "Cache-Control": "no-cache",
+                "cache-control": "no-cache"
+              },
+              "success": function(data) {
+                  document.getElementById('showFileTypeDetails').innerHTML = "";
+                  var objOfJSON = data.extensionResponseList[0];
+
+                  var showOnTag = '<div align="center"><div class="card" style="width:50em; margin-bottom:2em;"'+
+                                    '<div class="card-body">'+
+                                    '<h5 class="card-title" style="margin: 0.5em;">Extension:</h5>';
+                  showOnTag += '<h5 style="margin:0.5em;">'+ objOfJSON.extensionString+'</h5>';
+                  showOnTag += getCurrentFileDetails(objOfJSON) + '</div>';
+                  document.getElementById('showFileTypeDetails').innerHTML = showOnTag;
+              }
+            });
+        };
+
+
+
+        function getPageNumbers(isLastPage)
+        {
+            var showOnTag = "";
+            var showPreviousAndFirst = "";
+            var showNextAndLast = "";
+            if(pageNumber === 1)
+                showPreviousAndFirst += " disabled";
+            if(isLastPage === 1)
+                showNextAndLast += " disabled";
+            showOnTag += '<nav aria-label="Page navigation example">'+
+                            '<ul class="pagination justify-content-center">'+
+                                '<li class="page-item'+showPreviousAndFirst+'">'+
+                                    '<a class="page-link" href="#" tabindex="-1">First</a>'+
+                                '</li>'+
+                                '<li class="page-item'+showPreviousAndFirst+'">' +
+                                    '<a class="page-link" href="#">Previous</a></li>'+
+                                '<li class="page-item">' +
+                                    '<a class="page-link" href="#">'+pageNumber+'</a>' +
+                                '</li>'+
+                                '<li class="page-item'+showNextAndLast+'">' +
+                                    '<a class="page-link" href="#">Next</a>' +
+                                '</li>'+
+                                '<li class="page-item'+showNextAndLast+'">'+
+                                    '<a class="page-link" href="#">Last</a>'+
+                                '</li>'+
+                            '</ul>'+
+                        '</nav>';
+            return showOnTag;
+        }
+
+        var RestPostMulti = function(jsonFile) {
+            console.log('<-------------Inside RestPost()---------------->');
+            $.ajax({
+              "async": true,
+              "crossDomain": true,
+              "url": "http://192.168.0.105:8080/search/pagewise?pageNo="+pageNumber+'&pageSize='+pageSize,
+              "method": "POST",
+                // "dataType":"json",
+              "headers": {
+                "Content-Type": "application/json",
+                "Accept": "*/*",
+                "Cache-Control": "no-cache",
+                "cache-control": "no-cache"
+              },
+
+              "data": jsonFile,
+                "success": function (data) {
+                  document.getElementById('showFileTypeDetails').innerHTML = "";
+                    data2 = JSON.stringify(data);
+                    console.log(data2);
+                    var lengthOfJSON = data.size;
+                    console.log(lengthOfJSON);
+                    var jsonObjects = data.extensionResponseList;
+                    var showOnTag = "";
+                    showOnTag += getPageNumbers(isFirstPage,isLastPage);
+                    for (var i = 0; i < lengthOfJSON; ++i) {
+                        var extensionString = jsonObjects[i].extensionString;
                         var doShow = "";
-                        console.log('<-------- '+extensionString+' ----------->');
-                        if(i==0)
-                        {
-                            document.write('<div class="accordion" id="accordionExample">');
+
+                        console.log('<-------- ' + extensionString + ' ----------->');
+                        if (i === 0) {
+                            showOnTag += '<div class="card" style="width:50em; margin:3em 0em 3em 13em;"'+
+                                    '<div class="card-body">'+
+                                    '<h5 class="card-title" style="margin: 0.5em;">Extensions:</h5>'+
+                                '<div class="accordion" style="width=50%;" id="accordionExample">';
                             doShow = " show";
                         }
-                        document.write('<div class="card">' +
-                            '    <div class="card-header" id="heading'+i+'">' +
+                        showOnTag += '<div class="card">' +
+                            '    <div class="card-header" id="heading' + i + '">' +
                             '      <h2 class="mb-0">' +
-                            '        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse'+i+'" aria-expanded="true" aria-controls="collapse'+i+'">' +
-                            extensionString+
+                            '        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse' + i + '" aria-expanded="true" aria-controls="collapse' + i + '">' +
+                            '<span style="text-align: left;">'+extensionString +'</span>'+
                             '        </button>' +
                             '      </h2>' +
-                            '    </div>');
+                            '    </div>';
 
-                        document.write('<div id="collapse'+i+'" class="collapse'+doShow+'" aria-labelledby="heading'+i+'" data-parent="#accordionExample">' +
-                            '      <div class="card-body">' +
-                            category+
-                            '      </div>' +
-                            '    </div>' +
-                            '  </div>');
-                        if(i==lengthOfJSON-1)
-                            document.write('</div>');
+                        showOnTag += '<div id="collapse' + i + '" class="collapse' + doShow + '" aria-labelledby="heading' + i + '" data-parent="#accordionExample">' +
+                            '      <div class="card-body">';
+                        showOnTag += getCurrentFileDetails(jsonObjects[i]);
+                        showOnTag += '</div>';
+                        if (i === lengthOfJSON - 1)
+                            showOnTag += '</div></div></div>';
+                        console.log(typeof shortDescription + ' ' + typeof category + ' ' + typeof developer + ' ' + typeof information + ' ' + typeof usefulLink);
                     }
+                    showOnTag += getPageNumbers(isFirstPage,isLastPage);
+                    document.getElementById('showFileTypeDetails').innerHTML = showOnTag;
+                },
+                "error": function (jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.status + ' ' + jqXHR.responseText);
+                    }
+                });
+        };
+        function getCurrentFileDetails(objOfJSON)
+        {
+            var category = objOfJSON.category;
+            var shortDescription = objOfJSON.shortDescription;
+            var developer = objOfJSON.developer;
+            var information = objOfJSON.information;
+            var usefulLink = objOfJSON.usefulLink;
+            var programList = objOfJSON.programList;
+            var showOnTag = "";
+            if(name!=null && name!=='N/A')
+                showOnTag += '<div style="font-weight: bold;display:inline;margin:0.5em;">Name:</div> '+ shortDescription+ '<br>';
+            if(category!=null && category!=='N/A')
+                showOnTag += '<div style="font-weight: bold;display:inline;margin:0.5em;">Category:</div> '+ category+ '<br>';
+            if(developer!=null && developer!=='N/A')
+                showOnTag += '<div style="font-weight: bold;display:inline;margin:0.5em;">Developer:</div> '+ developer+ '<br>';
+            if(information!=null && information!=='N/A')
+                showOnTag += '<div style="font-weight: bold;display:inline;margin:0.5em;">What is known about it? :</div> '+ information+ '<br>';
+            if(programList!=null && programList!=='N/A')
+            {
+                var lengthOfProgramList = programList.length;
+                showOnTag += '<div style="font-weight: bold;display:inline;margin:0.5em;">Program Associated:</div> ';
+                for(var j=0;j<lengthOfProgramList;j++)
+                {
+                    if(j===lengthOfProgramList-1)
+                        showOnTag += programList[j]+'<br>';
+                    else
+                        showOnTag += programList[j] + ', ';
                 }
-                // error: function (jqXHR, textStatus, errorThrown) {
-                //     alert(jqXHR.status + ' ' + jqXHR.responseText);
-                // }
-            });
+            }
+            if(usefulLink!=null && usefulLink!=='N/A')
+                showOnTag += '<div style="font-weight: bold;display:inline;margin:0.5em;">More resources:</div> <a href="'+usefulLink+'">'+usefulLink+'</a><br>';
+            showOnTag += '</div></div>';
+            return showOnTag;
         }
     </script>
-</p>
 </body>
 </html>

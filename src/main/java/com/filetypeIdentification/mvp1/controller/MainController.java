@@ -8,6 +8,7 @@ package com.filetypeIdentification.mvp1.controller;
 import com.filetypeIdentification.mvp1.document.ExtensionRequestDTO;
 import com.filetypeIdentification.mvp1.document.ExtensionResponse;
 import com.filetypeIdentification.mvp1.document.ExtensionResponseDTO;
+import com.filetypeIdentification.mvp1.document.ExtensionResponsePageWiseDTO;
 import com.filetypeIdentification.mvp1.service.InformationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,13 @@ public class MainController {
 	InformationService informationService;
 
 	// Controller for only one extension
-	@GetMapping("/search/single")
+	@PostMapping("/search/single")
 	public ExtensionResponseDTO callServiceForInformation(@RequestParam String queryExtension){
 		return informationService.getInformation(queryExtension);
 	}
 
 	// Controller for more than one extension(s)
-	@GetMapping("/search/multi")
+	@PostMapping("/search/multi")
 	public ExtensionResponseDTO callServiceForInformation(@RequestBody ExtensionRequestDTO extensionRequestDTO){
 		return informationService.getMultipleInformation(extensionRequestDTO);
 	}
@@ -42,6 +43,12 @@ public class MainController {
 	}
 
 
+	@PostMapping("/search/pagewise/lastpage")
+	public ExtensionResponsePageWiseDTO getPageWiseInformation2(@RequestParam int pageNo, @RequestParam int pageSize,
+	                                                            @RequestBody ExtensionRequestDTO extensionRequestDTO) throws Exception {
+		return informationService.getPageWiseResponse(extensionRequestDTO, pageNo, pageSize);
+	}
+
 	@GetMapping("/category/all")
 	public List<String> listAllCategory(){
 		return informationService.getAllCategory();
@@ -49,8 +56,7 @@ public class MainController {
 
 
 	@GetMapping("/search/byCategory")
-	public ExtensionResponseDTO callServiceForINformation(@RequestParam String category)
-	{
+	public ExtensionResponseDTO callServiceForINformation(@RequestParam String category){
 		return informationService.getByCategory(category);
 	}
 

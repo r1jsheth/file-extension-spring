@@ -6,9 +6,7 @@ package com.filetypeIdentification.mvp1.service;
  */
 
 
-import com.filetypeIdentification.mvp1.document.Extension;
-import com.filetypeIdentification.mvp1.document.ExtensionRequestDTO;
-import com.filetypeIdentification.mvp1.document.ExtensionResponseDTO;
+import com.filetypeIdentification.mvp1.document.*;
 import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.MongoCursor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +42,6 @@ public class InformationService {
 	public ExtensionResponseDTO getMultipleInformation(ExtensionRequestDTO extensionRequestDTO){
 		List<String> queryExtensionList = extensionRequestDTO.getExtensionQueryList();
 		Query query = new Query();
-		// todo convert it to lower case
 		query.addCriteria(Criteria.where("extensionString").in(queryExtensionList));
 		List<Extension> extensionList = mongoTemplate.find(query, Extension.class);
 		ExtensionResponseDTO extensionResponseDTO = new ExtensionResponseDTO(extensionList);
@@ -86,6 +83,34 @@ public class InformationService {
 		}
 	}
 
+	public ExtensionResponsePageWiseDTO getPageWiseResponse(ExtensionRequestDTO extensionRequestDTO,
+																int pageNo, int pageSize) throws Exception{
+		Query query = new Query();
+		List<String> extensionQueryList = extensionRequestDTO.getExtensionQueryList();
+		Collections.sort(extensionQueryList);
+		query.addCriteria(Criteria.where("extensionString").in(extensionQueryList));
+		List<Extension> extensionList = mongoTemplate.find(query, Extension.class);
+		int totalResult = extensionList.size();
+		int totalPages = (totalResult % pageSize == 0 ? totalResult/pageSize : totalResult/pageSize+1);
+
+		int isLastPage = 0;
+		int startIndex = (pageNo-1)*pageSize, endIndex = Math.min(startIndex + pageSize, totalResult);
+		if(startIndex >= totalResult){
+			throw new Exception("Bad Request");
+		}
+		if(pageNo == -1 || endIndex >= totalResult ){
+			isLastPage = 1;
+			startIndex = (totalPages-1)*pageSize;
+			endIndex = totalResult;
+		}
+		ExtensionResponsePageWiseDTO extensionResponsePageWiseDTO = new ExtensionResponsePageWiseDTO(
+			isLastPage, pageNo, extensionList.subList(startIndex, endIndex)
+		);
+
+		return extensionResponsePageWiseDTO;
+
+
+	}
 
 	public List<String> getAllCategory(){
 
