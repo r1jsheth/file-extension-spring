@@ -36,7 +36,7 @@ public class MainController {
 	}
 
 
-	@GetMapping("/search/pagewise")
+	@PostMapping("/search/pagewise")
 	public ExtensionResponseDTO getPageWiseInformation(@RequestParam int pageNo, @RequestParam int pageSize,
 	                                                   @RequestBody ExtensionRequestDTO extensionRequestDTO){
 		return informationService.getMultipleInformationPageWise(extensionRequestDTO, pageNo, pageSize);
@@ -49,13 +49,13 @@ public class MainController {
 		return informationService.getPageWiseResponse(extensionRequestDTO, pageNo, pageSize);
 	}
 
-	@GetMapping("/category/all")
+	@PostMapping("/category/all")
 	public List<String> listAllCategory(){
 		return informationService.getAllCategory();
 	}
 
 
-	@GetMapping("/search/byCategory")
+	@PostMapping("/search/byCategory")
 	public ExtensionResponseDTO callServiceForINformation(@RequestParam String category){
 		return informationService.getByCategory(category);
 	}
