@@ -12,6 +12,7 @@
 	<artifactId>mvp1</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>mvp1</name>
+		<packaging>jar</packaging>
 	<description>First version for File Type Identification</description>
 
 	<properties>
@@ -43,9 +44,28 @@
 
 	<build>
 		<plugins>
+<!--			<plugin>-->
+<!--				<groupId>org.springframework.boot</groupId>-->
+<!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--			</plugin>-->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.1.7.RELEASE</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.filetypeIdentification.mvp1.Mvp1Application</mainClass>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

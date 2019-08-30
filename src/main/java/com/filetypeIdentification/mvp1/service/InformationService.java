@@ -102,6 +102,7 @@ public class InformationService {
 			isLastPage = 1;
 			startIndex = (totalPages-1)*pageSize;
 			endIndex = totalResult;
+			pageNo = totalPages;
 		}
 		ExtensionResponsePageWiseDTO extensionResponsePageWiseDTO = new ExtensionResponsePageWiseDTO(
 			isLastPage, pageNo, extensionList.subList(startIndex, endIndex)
@@ -114,7 +115,7 @@ public class InformationService {
 
 	public List<String> getAllCategory(){
 
-		DistinctIterable distinctIterable = mongoTemplate.getCollection("extensionProd").distinct("extensionData.category", String.class);
+		DistinctIterable distinctIterable = mongoTemplate.getCollection("extension").distinct("extensionData.category", String.class);
 		MongoCursor cursor = distinctIterable.iterator();
 		List<String> categoryList = new ArrayList<>();
 
